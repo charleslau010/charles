@@ -107,7 +107,7 @@
             const requestPayload = {
                 model: "deepseek-chat",
                 messages: messages,
-                stream: ture
+                stream: false
             };
 
             try {
@@ -122,11 +122,17 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    const botReply = data.choices && data.choices[0].message.content || '抱歉，我没有得到回复。'; // 根据返回的数据结构调整
-                    messages.push({ "role": "assistant", "content": botReply });
-                    displayMessage(botReply, 'bot');
+                    console.log(data); // 输出响应内容，帮助调试
+                    // 检查API返回的结构
+                    if (data && data.choices && data.choices.length > 0 && data.choices[0].message) {
+                        const botReply = data.choices[0].message.content || '没有回复内容。';
+                        messages.push({ "role": "assistant", "content": botReply });
+                        displayMessage(botReply, 'bot');
+                    } else {
+                        displayMessage('抱歉，我没有得到回复。', 'bot');
+                    }
                 } else {
-                    displayMessage('发生错误，请稍后再试。', 'bot');
+                    displayMessage('请求失败，请稍后再试。', 'bot');
                 }
             } catch (error) {
                 displayMessage('网络错误，请检查连接。', 'bot');
