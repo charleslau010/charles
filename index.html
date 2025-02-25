@@ -70,7 +70,7 @@
 
     <script>
         const apiKey = 'sk-383bad53854d4289803315f1d362f355'; // 请替换为你的DeepSeek API密钥
-        const apiUrl = 'https://api.deepseek.com/v1'; // DeepSeek API的URL
+        const apiUrl = 'https://api.deepseek.com/chat/completions'; // DeepSeek API的URL
 
         const chatBox = document.getElementById('chat-box');
         const userInput = document.getElementById('user-input');
@@ -120,23 +120,23 @@
                     body: JSON.stringify(requestPayload),
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log(data); // 输出响应内容，帮助调试
-                    // 检查API返回的结构
-                    if (data && data.choices && data.choices.length > 0 && data.choices[0].message) {
-                        const botReply = data.choices[0].message.content || '没有回复内容。';
-                        messages.push({ "role": "assistant", "content": botReply });
-                        displayMessage(botReply, 'bot');
-                    } else {
-                        displayMessage('抱歉，我没有得到回复。', 'bot');
-                    }
+                // 输出调试信息
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('API Response:', data);  // 输出响应内容，帮助调试
+
+                // 检查API返回的结构
+                if (response.ok && data && data.choices && data.choices.length > 0) {
+                    const botReply = data.choices[0].message ? data.choices[0].message.content : '没有返回内容';
+                    messages.push({ "role": "assistant", "content": botReply });
+                    displayMessage(botReply, 'bot');
                 } else {
-                    displayMessage('请求失败，请稍后再试。', 'bot');
+                    console.error('Error: Invalid response structure or no reply');
+                    displayMessage('抱歉，我没有得到回复。', 'bot');
                 }
             } catch (error) {
-                displayMessage('网络错误，请检查连接。', 'bot');
-                console.error('Error:', error);
+                console.error('Network or API error:', error);
+                displayMessage('请求失败，请稍后再试。', 'bot');
             }
         }
     </script>
